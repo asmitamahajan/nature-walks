@@ -19,7 +19,8 @@ const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
-const MongoDBStore = require('connect-mongo');
+const MongoDBStore = require("connect-mongo");
+
 const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
 
 mongoose.connect(dbUrl, {
@@ -47,10 +48,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(mongoSanitize({
     replaceWith: '_'
 }))
-
 const secret = process.env.SECRET || 'thisshouldbeabettersecret!';
 
-const store = MongoDBStore.create({
+const store = new MongoDBStore({
     mongoUrl: dbUrl,
     secret,
     touchAfter: 24 * 60 * 60
@@ -115,13 +115,14 @@ app.use(
                 "'self'",
                 "blob:",
                 "data:",
-                "https://res.cloudinary.com/ddp2xpanq/",
+                "https://res.cloudinary.com/douqbebwk/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
                 "https://images.unsplash.com/",
             ],
             fontSrc: ["'self'", ...fontSrcUrls],
         },
     })
 );
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -140,13 +141,16 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use('/', userRoutes)
+
+app.use('/', userRoutes);
 app.use('/campgrounds', campgroundRoutes)
 app.use('/campgrounds/:id/reviews', reviewRoutes)
+
 
 app.get('/', (req, res) => {
     res.render('home')
 });
+
 
 app.all('*', (req, res, next) => {
     next(new ExpressError('Page Not Found', 404))
